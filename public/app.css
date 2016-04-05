@@ -1,0 +1,55 @@
+body {
+  font-family: Consolas, monospace;
+  max-width: 3100px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 16px;
+}
+
+#rowLogin {
+     padding: 100px 10px;
+}
+
+#dashboard {
+  padding: 150px 10px;
+}
+
+.container {
+ margin-left: 100px;
+ margin-right: 100px;
+ max-width: 90%;
+
+}
+
+.label{
+  white-space: normal;
+}
+
+.border {
+  border: solid 1px silver;
+  padding: 3px;
+}
+
+.tweet {
+  margin-bottom: 20px;
+  padding: 10px;
+}
+
+.profile-pic {
+  border: solid 1px silver;
+  padding: 3px;
+  width: 56px;
+  height: 56px;
+}
+
+.wordwrap {
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+.importantTag {
+  font-weight: 200;
+}
