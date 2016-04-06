@@ -6,12 +6,14 @@ var app = express();
 var fs = require('fs');
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
+var mkdirp = require('mkdirp');
 var usernames = {};
 var storyName = '';
 var storySummary = {};
 var storyPointsHidden=true;
 var game={};
-var outputFileName = path.join(__dirname, 'output', 'test.json');
+var outputDir = path.join(__dirname,'output');
+var outputFileName = path.join(outputDir,'test.json');
 
 app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8080);
 app.set('ip', process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1');
@@ -67,16 +69,38 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	function saveGame() {
-		var objS = serialize.serialize(game);
 		socket.emit('updatestorysummary',game,true);
 		socket.broadcast.emit('updatestorysummary',game,false);
-		fs.writeFile(outputFilename, objS, function(err) {
-			if(err) {
-				console.log(err);
-			} else {
-				console.log("Game story saved to file" + outputFilename);
+		fs.exists(outputFileName, function(exists) {
+			if(!exists) {
+				mkdirp(outputDir, function (err) {
+					if (err)
+						console.error(err)
+					else
+						console.log('Created new directory ' + outputDir);
+				});
 			}
 		});
+		fs.open(outputFileName, 'w+', function(err, fd) {
+			if (err) {
+				return console.error(err);
+			}
+			console.log("File opened successfully!");
+			var gameAsJson = serialize.serialize(game);
+			fs.writeFile(outputFileName, gameAsJson, function(err) {
+				if(err) {
+					console.log(err);
+				}
+				console.log("Game story saved to file" + outputFileName);
+				fs.close(fd, function(err){
+					if (err){
+						console.log(err);
+					}
+					console.log("File closed successfully.");
+				});
+			});
+		});
+
 		for(user in usernames) {
 			usernames[user] = '';
 		}
@@ -85,9 +109,9 @@ io.sockets.on('connection', function(socket) {
 	socket.on('closestory',function(storyPoints) {
 		if(storyName && storyPoints) {
 			storySummary[storyName] = storyPoints;
-			socket.broadcast.emit('resetonclosestory');
 			clearStoryPoints();
 			saveGame();
+			socket.broadcast.emit('resetonclosestory');
 		}
 
 	});
