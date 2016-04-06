@@ -11,7 +11,7 @@ var storyName = '';
 var storySummary = {};
 var storyPointsHidden=true;
 var game={};
-var outputFilename = 'test.json';
+var outputFileName = path.join(__dirname, 'output', 'test.json');
 
 app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8080);
 app.set('ip', process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1');
@@ -33,21 +33,32 @@ app.get('/', function (req, res) {
 });
 
 app.get('/main', function (req, res) {
-	outputFilename = path.join(__dirname, 'output', outputFilename);
+	console.log('Express server listening on port ' + outputFileName);
+	readStories(outputFileName);
 	res.render('main');
 });
 
-// fs.readFile(outputFilename, function(err, data) {
-// 	if (err) {
-// 		throw err;
-// 	}
-// 	try {
-// 		game = JSON.parse(data);
-// 	} catch (e) {
-// 		game = {};
-// 	}
-//
-// });
+function readStories() {
+	fs.exists(outputFileName, function(err,exists) {
+		if(exists == true) {
+			fs.readFile(outputFileName, function(err, data) {
+				if (err) {
+					console.log(err);
+					throw err;
+				}
+				try {
+					game = JSON.parse(data);
+					console.log('successfully read from file ' + outputFileName);
+				} catch (e) {
+					game = {};
+				}
+			});
+		}
+
+	});
+
+
+}
 
 io.sockets.on('connection', function(socket) {
 	socket.on('showstorypoints', function() {
@@ -63,7 +74,7 @@ io.sockets.on('connection', function(socket) {
 			if(err) {
 				console.log(err);
 			} else {
-				console.log("JSON saved to " + outputFilename);
+				console.log("Game story saved to file" + outputFilename);
 			}
 		});
 		for(user in usernames) {

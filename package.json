@@ -1,24 +1,32 @@
 {
-  "name": "nodejs-chat",
+  "name": "fibonacci.poker",
   "version": "1.0.0",
-  "description": "A node js chat app using web sockets (socket.io)",
+  "description": "a fun planning poker tool",
   "main": "server.js",
   "dependencies": {
     "ejs": "^0.8.8",
-    "express": "^3.0.6",
-    "node-serialize": "^0.0.4",
+    "express": "^3.21.2",
     "fs": "^0.0.2",
-    "socket.io": "^1.4.5",
-    "underscore": "^1.5.2",
-    "session-file-store": "^0.2.0",
+    "inherits": "^2.0.1",
+    "node-serialize": "^0.0.4",
     "path": "^0.12.7",
-    "inherits": "^2.0.1"
+    "underscore": "^1.8.3",
+    "session-file-store": "^0.2.0",
+    "socket.io": "^1.4.5"
   },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "server.js"
+    "start": "node server.js"
   },
-  "author": "",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gilesdsilva/fibonacci.poker.git"
+  },
+  "author": "giles.d'silva",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gilesdsilva/fibonacci.poker/issues"
+  },
+  "homepage": "https://github.com/gilesdsilva/fibonacci.poker#readme"
 }
