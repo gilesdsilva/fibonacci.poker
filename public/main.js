@@ -128,11 +128,9 @@ socket.on('updatestorypointshidden', function (storyPoints) {
 
 function disableStoryPointsEntering(disable) {
     var storyNameExists = $('#storyName').val();
-    disable = isEmpty(storyNameExists) || disable;
-    if(disable) {
-        $('#storyNameCurrent').text('');
-        $('#storyPoints').prop('disabled', disable);
-    }
+    var storyNameCurrentExists = $('#storyNameCurrent').text();
+    disable = (isEmpty(storyNameExists) && isEmpty(storyNameCurrentExists))  || disable;
+    $('#storyPoints').prop('disabled', disable);
 }
 
 function isEmpty(str) {
@@ -193,9 +191,10 @@ $(function() {
 function updateStoryName() {
     var storyName = $('#storyName').val();
     if(isEmpty(storyName)) {
+        $('#storyNameCurrent').text('');
         disableStoryPointsEntering(true);
     } else {
-        $('#storyNameCurrent').val(storyName);
+        $('#storyNameCurrent').text(storyName);
         socket.emit('sendstoryname', storyName);
     }
 
