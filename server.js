@@ -9,7 +9,6 @@ var io = require('socket.io').listen(server);
 var mkdirp = require('mkdirp');
 var usernames = {};
 var storyName = '';
-var storySummary = {};
 var storyPointsVisible=false;
 var game={};
 var outputDir = path.join(__dirname,'output');
@@ -65,8 +64,8 @@ function readStories() {
 io.sockets.on('connection', function(socket) {
 
 	socket.on('showstorypoints', function(visible) {
-		storyPointsVisible=visible;
-		updateStoryPoints();
+		storyPointsVisible = visible;
+		setStoryPointsVisibility();
 	});
 
 	function saveGame() {
@@ -107,14 +106,14 @@ io.sockets.on('connection', function(socket) {
 		}
 	}
 
-	socket.on('closestory',function(storyPoints) {
+	socket.on('closestory',function(storyPoints,gameName,storyName) {
 		if(storyName && storyPoints) {
+			var storySummary = game[gameName];
 			storySummary[storyName] = storyPoints;
+			io.sockets.emit('resetonclosestory');
 			clearStoryPoints();
 			saveGame();
-			socket.broadcast.emit('resetonclosestory');
 		}
-
 	});
 
 	function clearStoryPoints() {
@@ -122,7 +121,6 @@ io.sockets.on('connection', function(socket) {
 		for(var username in usernames) {
 			usernames[username] = '';
 		}
-		updateStoryPoints();
 	}
 
 	socket.on('deletestory', function(gameName,storyName) {
@@ -132,7 +130,7 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('updategamename',function(gameName) {
 		if(!(gameName in game)) {
-			game[gameName] = storySummary;
+			game[gameName] = {};
 		}
 	});
 
@@ -141,38 +139,49 @@ io.sockets.on('connection', function(socket) {
 		io.sockets.emit('updatestoryname',storyName);
 	});
 
-	function userIsAdmin(username) {
+	function isUserAdmin(username) {
 		return username.indexOf("admin") > -1;
 	}
 
 	socket.on('adduser', function(username) {
 		socket.username = username;
 		usernames[username] =  '';
-		if(userIsAdmin(username)) {
+		if(isUserAdmin(username)) {
 			socket.emit("updateuserisadmin");
 			clearStoryPoints();
 		}
 		io.sockets.emit('updateusers', usernames);
-		socket.emit('updatestorysummary',game, userIsAdmin(username));
+		socket.emit('updatestorysummary',game, isUserAdmin(username));
 		socket.emit('updatestoryname',storyName);
-		updateStoryPoints();
 	});
 
+	function setStoryPointsVisibility() {
+		if(storyPointsVisible) {
+			io.sockets.emit('updatestorypointsvisible',usernames)
+		}
+		else {
+			io.sockets.emit('updatestorypointshidden',usernames);
+		}
+	}
+
 	function updateStoryPoints() {
+		var finalStoryPoints = calculateFinalStoryPoints();
 		if(!storyPointsVisible) {
 			io.sockets.emit('updatestorypointshidden',usernames);
 		}
 		else {
-			var points = [];
-			for ( var username in usernames) {
-				var point = Number(usernames[username]);
-                points.push(point);
-			}
 			io.sockets.emit('updatestorypointsvisible',usernames);
-			io.sockets.emit('updatefinalstorypoints',find_mode(points));
 		}
+		io.sockets.emit('updatefinalstorypoints',finalStoryPoints);
+	}
 
-
+	function calculateFinalStoryPoints() {
+		var points = [];
+		for ( var username in usernames) {
+			var point = Number(usernames[username]);
+			points.push(point);
+		}
+		return find_mode(points);
 	}
 
 	function find_mode(arr) {
@@ -210,6 +219,10 @@ io.sockets.on('connection', function(socket) {
 	socket.on('disconnect', function(){
 		delete usernames[socket.username];
 		io.sockets.emit('updateusers', usernames);
-		updateStoryPoints();
+		if(socket.username && isUserAdmin(socket.username)) {
+			storyPointsVisible = false;
+			setStoryPointsVisibility();
+			io.sockets.emit('resetonclosestory');
+		}
 	});
 });

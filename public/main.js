@@ -29,16 +29,22 @@ function reset() {
     $('#finalStoryPoints').val('');
     $('#storyPoints').val('');
     $('#storyName').val('');
-    $('#storyPoints').prop('disabled', true);
-    $('#showpointsswitch').setState(false);
+    disableStoryPointsEntering(true);
+    $('#closeStoryButton').hide();
+    $('#finalStoryPoints').hide();
+    var state = $('#showpointsswitch').bootstrapSwitch('state');
+    if(state) {
+        $('#showpointsswitch').bootstrapSwitch('toggleState');
+        $('#showpointsswitch').bootstrapSwitch('setState',false);
+    }
 }
 
 function closeStory() {
     var finalStoryPoints = $('#finalStoryPoints').val();
     var storyName =  $('#storyName').val();
+    var gameName = $('#gameName').val();
     if(finalStoryPoints && storyName) {
-        socket.emit('closestory', finalStoryPoints);
-        reset();
+        socket.emit('closestory', finalStoryPoints,gameName,storyName);
     }
 }
 
@@ -81,7 +87,7 @@ socket.on('updatestorysummary', function (storyPoints,isUserAdmin) {
 socket.on('updatestoryname', function (storyName) {
     if(storyName) {
         $('#storyNameCurrent').text(storyName);
-        $("#storyPoints").prop('disabled', false);
+        disableStoryPointsEntering(false);
     }
 });
 
@@ -109,14 +115,26 @@ socket.on('updatestorypointsvisible', function (storyPoints) {
     updateStoryPoints(true,storyPoints);
     $('#finalStoryPoints').show();
     $('#closeStoryButton').show();
+    disableStoryPointsEntering(true);
 });
 
 socket.on('updatestorypointshidden', function (storyPoints) {
     updateStoryPoints(false,storyPoints);
     $('#closeStoryButton').hide();
     $('#finalStoryPoints').hide();
-
+    $('#storyPoints').prop('disabled', storyName ||false);
+    disableStoryPointsEntering(false);
 });
+
+function disableStoryPointsEntering(disable) {
+    var storyNameExists = $('#storyName').val();
+    disable = isEmpty(storyNameExists) || disable;
+    $('#storyPoints').prop('disabled', disable);
+}
+
+function isEmpty(str) {
+    return typeof str == 'string' && !str.trim() || typeof str == 'undefined' || str === null;
+}
 
 socket.on('updateusers', function (data) {
     $('#users').empty();
@@ -169,12 +187,17 @@ $(function() {
     })
 });
 
-$(function() {
-    function updateStoryName() {
-        var storyname = $('#storyName').val();
-        $('#storyNameCurrent').val(storyname);
-        socket.emit('sendstoryname', storyname);
+function updateStoryName() {
+    var storyName = $('#storyName').val();
+    if(isEmpty(storyName)) {
+        disableStoryPointsEntering(true);
+    } else {
+        $('#storyNameCurrent').val(storyName);
+        socket.emit('sendstoryname', storyName);
     }
+
+}
+$(function() {
 
     $('#storyName').focusout(function() {
        updateStoryName();

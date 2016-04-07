@@ -10,6 +10,23 @@ body {
      padding: 90px 10px;
 }
 
+div {
+  white-space:normal;
+}
+
+.storyLabel {
+  /*display: inline;*/
+  /*padding: .2em .6em .3em;*/
+  /*font-size: 75%;*/
+  /*font-weight: 700;*/
+  /*line-height: 1;*/
+  color: green;
+  text-align: left;
+  white-space: normal;
+  /*vertical-align: baseline;*/
+  /*border-radius: .25em;*/
+}
+
 #dashboard {
   padding: 100px 10px;
 }
