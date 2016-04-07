@@ -25,7 +25,7 @@ var getUrlParameter = function getUrlParameter(sParam) {
 };
 
 function reset() {
-    $('#storyNameCurrent').val('');
+    $('#storyNameCurrent').text('');
     $('#finalStoryPoints').val('');
     $('#storyPoints').val('');
     $('#storyName').val('');
@@ -129,7 +129,10 @@ socket.on('updatestorypointshidden', function (storyPoints) {
 function disableStoryPointsEntering(disable) {
     var storyNameExists = $('#storyName').val();
     disable = isEmpty(storyNameExists) || disable;
-    $('#storyPoints').prop('disabled', disable);
+    if(disable) {
+        $('#storyNameCurrent').text('');
+        $('#storyPoints').prop('disabled', disable);
+    }
 }
 
 function isEmpty(str) {
