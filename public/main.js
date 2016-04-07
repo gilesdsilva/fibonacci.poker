@@ -140,7 +140,6 @@ $(function (){
         } else {
             socket.emit('showstorypoints',false);
         }
-
     });
 });
 

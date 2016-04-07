@@ -10,7 +10,7 @@ var mkdirp = require('mkdirp');
 var usernames = {};
 var storyName = '';
 var storySummary = {};
-var storyPointsVisible=true;
+var storyPointsVisible=false;
 var game={};
 var outputDir = path.join(__dirname,'output');
 var outputFileName = path.join(outputDir,'test.json');
@@ -159,9 +159,8 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	function updateStoryPoints() {
-		if(storyPointsVisible) {
+		if(!storyPointsVisible) {
 			io.sockets.emit('updatestorypointshidden',usernames);
-			io.sockets.emit('updatefinalstorypoints','*');
 		}
 		else {
 			var points = [];
