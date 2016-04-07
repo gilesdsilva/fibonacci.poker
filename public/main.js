@@ -2,10 +2,6 @@ function escaped(s) {
     return $("<div></div>").html(s).html();
 }
 
-function showStoryPoints() {
-    socket.emit('showstorypoints');
-}
-
 window.addEventListener('load', function(){
     var loginName= getUrlParameter('loginName');
     if(loginName) {
@@ -33,7 +29,8 @@ function reset() {
     $('#finalStoryPoints').val('');
     $('#storyPoints').val('');
     $('#storyName').val('');
-    $("#storyPoints").prop('disabled', true);
+    $('#storyPoints').prop('disabled', true);
+    $('#showpointsswitch').setState(false);
 }
 
 function closeStory() {
@@ -46,6 +43,10 @@ function closeStory() {
 }
 
 var socket = io.connect('/');
+
+$(window).load(function(){
+    $('#showpointsswitch').bootstrapSwitch();
+});
 
 socket.on('resetonclosestory', function() {
     reset();
@@ -83,33 +84,6 @@ socket.on('updatestoryname', function (storyName) {
         $("#storyPoints").prop('disabled', false);
     }
 });
-
-function find_mode(arr) {
-    var mode = {};
-    var max = 0, count = 0;
-    var maxItem = 0;
-
-    $.each(arr,function(e) {
-        if (mode[e]) {
-            mode[e]++;
-        }
-        else {
-            mode[e] = 1;
-        }
-
-        if (count<mode[e]) {
-            max = e;
-            count = mode[e];
-            maxItem = e;
-        }
-        if(count == mode[e]) {
-            if(e> maxItem) {
-                maxItem = e;
-            }
-        }
-    });
-    return maxItem;
-}
 
 function updateStoryPoints(visible,storyPoints) {
     $('#storyPointsResult').empty();
@@ -155,17 +129,19 @@ socket.on('updateuserisadmin', function () {
     $('#rowGameName').show();
     $('#rowStoryName').show();
     $('#rowFinalStoryPoints').show();
+    $('#rowShowStoryPoints').show();
 });
 
-socket.on('connectionnotification', function (data) {
-    if (data.connected) {
-        if (data.to_self) {
-            data.username = "you";
+$(function (){
+    $('#showpointsswitch').on('switchChange.bootstrapSwitch', function(event, state) {
+        console.log(state);
+        if(state) {
+            socket.emit('showstorypoints',true);
+        } else {
+            socket.emit('showstorypoints',false);
         }
-        $('#connections').append("<br/>" + 'join + ' + (data.username));
-    } else {
-        $('#connections').append("<br/>" + 'left - ' + (data.username));
-    }
+
+    });
 });
 
 $(function () {

@@ -1,12 +1,14 @@
 <head>
     <title>Node Chat App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/public/jquery-1.12.3.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="/public/main.js"></script>
     <link rel="stylesheet" href="/public/bootstrap/css/bootstrap.css">
-    <script src="/public/bootstrap/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="/public/bootstrap-switch/css/bootstrap-switch.css">
     <link rel="stylesheet" href="/public/app.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/public/jquery-1.12.3.min.js"></script>
+    <script src="/public/bootstrap/js/bootstrap.js"></script>
+    <script src="/public/bootstrap-switch/js/bootstrap-switch.js"></script>
+    <script type="text/javascript" src="/public/main.js"></script>
 </head>
 
 <body>
@@ -31,7 +33,7 @@
 <div class="container">
     <div id="dashboard">
         <div class="row" id="rowStory" style="display:block">
-            <div class="col-md-7">
+            <div class="col-md-8">
                 <div class="row" id="rowStoryNameCurrent" style="display:block">
                     <div class="col-md-2">
                         <label id="storyNameCurrent" ></label>
@@ -49,10 +51,13 @@
                     <div class="col-md-3"><label>Story Name</label></div>
                     <div class="col-md-9"><input class="input-lg" id="storyName" placeholder="Story details" size="50"></div>
                 </div>
+                <div class="row" id="rowShowStoryPoints" style="display:none">
+                    <div class="col-md-3"><label>Show Points</label></div>
+                    <div class="col-md-5 make-switch"><input id="showpointsswitch" type="checkbox" class="switch"></div>
+                </div>
                 <div class="row" id="rowFinalStoryPoints" style="display:none">
                     <div class="col-md-3"><label>Final Story Points</label></div>
                     <div class="col-md-2"><input id="finalStoryPoints" placeholder="2" class="input-lg" style="display:none" type="text"  maxlength="5" size="5"></div>
-                    <div class="col-md-2"><button id="showStoryPointsButton" class="btn btn-primary input-lg" style="display:block" onclick="showStoryPoints()">Show Points</button></div>
                     <div class="col-md-2"><button  class="btn btn-primary input-lg" id="closeStoryButton" style="display:none" onclick="closeStory()">Submit Story</button></div>
                 </div>
 
@@ -80,10 +85,6 @@
             <div class="col-xs-2" id="userList" style="display:block">
                 <b>Users</b>
                 <div id="users"></div>
-            </div>
-
-            <div class="col-md-2" id="connections" style="display:block">
-                <b>Connections</b>
             </div>
         </div>
 

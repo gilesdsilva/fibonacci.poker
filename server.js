@@ -10,7 +10,7 @@ var mkdirp = require('mkdirp');
 var usernames = {};
 var storyName = '';
 var storySummary = {};
-var storyPointsHidden=true;
+var storyPointsVisible=true;
 var game={};
 var outputDir = path.join(__dirname,'output');
 var outputFileName = path.join(outputDir,'test.json');
@@ -63,8 +63,9 @@ function readStories() {
 }
 
 io.sockets.on('connection', function(socket) {
-	socket.on('showstorypoints', function() {
-		storyPointsHidden=!storyPointsHidden;
+
+	socket.on('showstorypoints', function(visible) {
+		storyPointsVisible=visible;
 		updateStoryPoints();
 	});
 
@@ -147,12 +148,9 @@ io.sockets.on('connection', function(socket) {
 	socket.on('adduser', function(username) {
 		socket.username = username;
 		usernames[username] =  '';
-		socket.emit('connectionnotification', { connected: true, to_self: true, username: username });
-		socket.broadcast.emit('connectionnotification', { connected: true, username: username });
 		if(userIsAdmin(username)) {
 			socket.emit("updateuserisadmin");
 			clearStoryPoints();
-			clearGame();
 		}
 		io.sockets.emit('updateusers', usernames);
 		socket.emit('updatestorysummary',game, userIsAdmin(username));
@@ -160,12 +158,8 @@ io.sockets.on('connection', function(socket) {
 		updateStoryPoints();
 	});
 
-	function clearGame() {
-		game={};
-	}
-
 	function updateStoryPoints() {
-		if(storyPointsHidden) {
+		if(storyPointsVisible) {
 			io.sockets.emit('updatestorypointshidden',usernames);
 			io.sockets.emit('updatefinalstorypoints','*');
 		}
@@ -218,6 +212,5 @@ io.sockets.on('connection', function(socket) {
 		delete usernames[socket.username];
 		io.sockets.emit('updateusers', usernames);
 		updateStoryPoints();
-		socket.broadcast.emit('connectionnotification', { username: socket.username });
 	});
 });
