@@ -110,7 +110,7 @@ io.sockets.on('connection', function(socket) {
 		if(storyName && storyPoints) {
 			var storySummary = game[gameName];
 			storySummary[storyName] = storyPoints;
-			io.sockets.emit('resetonclosestory');
+			io.sockets.emit('reset');
 			clearStoryPoints();
 			saveGame();
 		}
@@ -125,6 +125,9 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('deletestory', function(gameName,storyName) {
 		delete  game[gameName][storyName];
+		if(Object.keys(game[gameName]).length == 0) {
+			delete  game[gameName];
+		}
 		saveGame();
 	});
 
@@ -216,13 +219,19 @@ io.sockets.on('connection', function(socket) {
 
 	});
 
-	socket.on('disconnect', function(){
-		delete usernames[socket.username];
-		io.sockets.emit('updateusers', usernames);
-		if(socket.username && isUserAdmin(socket.username)) {
-			storyPointsVisible = false;
-			setStoryPointsVisibility();
-			io.sockets.emit('resetonclosestory');
+	socket.on('onwindowclose', function(username) {
+		if(username == socket.username) {
+			delete usernames[username];
+			io.sockets.emit('updateusers', usernames);
+			if(isUserAdmin(username)) {
+				storyPointsVisible = false;
+				setStoryPointsVisibility();
+				io.sockets.emit('reset');
+			}
 		}
+	});
+
+	socket.on('disconnect', function(){
+		console.log(socket.username + ' :user has disconnected');
 	});
 });

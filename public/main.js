@@ -54,7 +54,12 @@ $(window).load(function(){
     $('#showpointsswitch').bootstrapSwitch();
 });
 
-socket.on('resetonclosestory', function() {
+$(window).bind("beforeunload", function() {
+    var loginName = localStorage.getItem("loginName");
+    socket.emit('onwindowclose',loginName);
+});
+
+socket.on('reset', function() {
     reset();
 });
 
@@ -73,13 +78,15 @@ socket.on('updatestorysummary', function (storyPoints,isUserAdmin) {
     $('#storySummaryTable tbody').remove();
     $.each(storyPoints, function (key, value) {
         var game = key;
+        var refTarget = game + 'stories';
+        $('#storySummaryTable').append('<tr><td><button type=\'button\' data-toggle=\'collapse\' data-target=\'.'+ refTarget +'\'>'+ game+'</button></td></tr>');
         $.each(value, function (story, points) {
-            var style = ''
+            var style = '';
             if(isUserAdmin == false)
                 style = 'style=\'display:none\'';
             else
                 style = 'style=\'display:block\'';
-            $('#storySummaryTable').append('<tr><td class=\'game\'>' + game + '</td><td class=\'story\'>' + story + '</td><td class=\'points\'>' + points + '</td><td><input type=\'button\''+ style +' value=\'delete\'></td></tr>');
+            $('#storySummaryTable').append('<tr class=\'hiddenRow collapse out '+ refTarget +'\'><td class=\'game\'>'+ game +'</td><td class=\'story\'>' + story + '</td><td>' + points + '</td><td><input type=\'button\' '+ style + ' value=\'delete\'></td></tr>');
         });
     });
 });
