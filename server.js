@@ -75,7 +75,7 @@ io.sockets.on('connection', function(socket) {
 			if(!exists) {
 				mkdirp(outputDir, function (err) {
 					if (err)
-						console.error(err)
+						console.error(err);
 					else
 						console.log('Created new directory ' + outputDir);
 				});
@@ -128,6 +128,11 @@ io.sockets.on('connection', function(socket) {
 		if(Object.keys(game[gameName]).length == 0) {
 			delete  game[gameName];
 		}
+		saveGame();
+	});
+
+	socket.on('deletegame', function(gameName) {
+		delete  game[gameName];
 		saveGame();
 	});
 

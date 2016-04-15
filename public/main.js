@@ -73,19 +73,16 @@ socket.on('updatechat', function (username, data) {
 });
 
 
-socket.on('updatestorysummary', function (storyPoints,isUserAdmin) {
+socket.on('updatestorysummary', function (games,isUserAdmin) {
     $('#storySummary').empty();
     $('#storySummaryTable tbody').remove();
-    $.each(storyPoints, function (key, value) {
-        var game = key;
-        var refTarget = game + 'stories';
-        $('#storySummaryTable').append('<tr><td><button type=\'button\' data-toggle=\'collapse\' data-target=\'.'+ refTarget +'\'>'+ game+'</button></td></tr>');
-        $.each(value, function (story, points) {
-            var style = '';
-            if(isUserAdmin == false)
-                style = 'style=\'display:none\'';
-            else
-                style = 'style=\'display:block\'';
+    var style = '';
+    style = isUserAdmin ? 'style=\'display:block\'' : 'style=\'display:none\'';
+    $.each(games, function (game, stories) {
+        var refTarget = game.replace(/ /g,'') + 'stories';
+        $('#storySummaryTable').append('<tr><td><button type=\'button\' data-toggle=\'collapse\' data-target=\'.'+ refTarget +'\'>'+ game+'</button></td><td class=\'game\' style=\'display:none\' >'+ game +'</td><td class=\'story\' style=\'display:none\' ></td><td></td><td><td><input type=\'button\' '+ style + ' value=\'deleteAll\'></td></tr>');
+        $.each(stories, function (story, points) {
+
             $('#storySummaryTable').append('<tr class=\'hiddenRow collapse out '+ refTarget +'\'><td class=\'game\'>'+ game +'</td><td class=\'story\'>' + story + '</td><td>' + points + '</td><td><input type=\'button\' '+ style + ' value=\'delete\'></td></tr>');
         });
     });
@@ -191,7 +188,11 @@ $(function() {
     $('#storySummaryTable').on('click', 'input[type="button"]', function(e){
         var game = $(this).closest('tr').children('td.game').text();
         var story = $(this).closest('tr').children('td.story').text();
-        socket.emit("deletestory",game,story)
+        if(story) {
+            socket.emit("deletestory",game,story)
+        } else {
+            socket.emit("deletegame",game);
+        }
     })
 });
 
